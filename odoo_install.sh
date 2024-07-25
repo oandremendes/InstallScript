@@ -100,9 +100,6 @@ echo -e "\n--- Installing Python 3 + pip3 --"
 sudo apt-get install python3 python3-pip
 sudo apt-get install git python3-cffi build-essential wget python3-dev python3-venv python3-wheel libxslt-dev libzip-dev libldap2-dev libsasl2-dev python3-setuptools node-less libpng-dev libjpeg-dev gdebi -y
 
-echo -e "\n---- Install python packages/requirements ----"
-sudo -H pip3 install -r https://github.com/odoo/odoo/raw/${OE_VERSION}/requirements.txt
-
 echo -e "\n---- Installing nodeJS NPM and rtlcss for LTR support ----"
 sudo apt-get install nodejs npm -y
 sudo npm install -g rtlcss
@@ -139,6 +136,8 @@ echo -e "\n---- Create ODOO system user ----"
 sudo adduser --system --quiet --shell=/bin/bash --home=$OE_HOME --gecos 'ODOO' --group $OE_USER
 #The user should also be added to the sudo'ers group.
 sudo adduser $OE_USER sudo
+
+
 
 echo -e "\n---- Create Log directory ----"
 sudo mkdir /var/log/$OE_USER
@@ -179,6 +178,18 @@ fi
 echo -e "\n---- Create custom module directory ----"
 sudo su $OE_USER -c "mkdir $OE_HOME/custom"
 sudo su $OE_USER -c "mkdir $OE_HOME/custom/addons"
+
+#--------------------------------------------------
+# Install Dependencies of ODOO
+#--------------------------------------------------
+echo -e "\n--- Installing Python 3 + pip3 --"
+# Path to the virtual environment
+venv_path="/$OE_HOME/$OE_USER-venv"
+#Create a new Python virtual environment for Odoo
+sudo su $OE_USER -c "python3 -m venv $venv_path"
+# Activate the virtual environment using sudo
+echo -e "\n---- Install python packages/requirements ----"
+sudo -H -u "$OE_USER" bash -c "source $venv_path/bin/activate && pip3 install wheel && pip3 install -r $OE_HOME_EXT/requirements.txt && deactivate"
 
 echo -e "\n---- Setting permissions on home folder ----"
 sudo chown -R $OE_USER:$OE_USER $OE_HOME/*
