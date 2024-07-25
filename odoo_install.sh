@@ -255,7 +255,9 @@ EOF
 sudo mv ~/$OE_USER.service /etc/systemd/system/$OE_USER.service
 
 echo -e "* Start ODOO on Startup"
-sudo update-rc.d $OE_CONFIG defaults
+sudo systemctl daemon-reload
+# enable odoo
+sudo systemctl enable --now $OE_USER
 
 #--------------------------------------------------
 # Install Nginx if needed
